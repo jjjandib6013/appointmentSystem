@@ -1,4 +1,4 @@
-import javax.swing.*;
+ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -8,75 +8,83 @@ public class AppointmentSystem extends JFrame {
     JTextField userLogin;
     JPasswordField passLogin;
 
-    public void appointmentSystem() {
+    public void setupAppointmentSystem() {
         appointmentManager = new AppointmentManager();
-
+    
         setTitle("Appointment System");
         setSize(800, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
 
+        JPanel headerPanel = new JPanel();
+        headerPanel.setBackground(Color.getHSBColor(195 / 360f, 25 / 100f, 90 / 100f));
+        JLabel systemNameLabel = new JLabel("JP Appointment Management System");
+        systemNameLabel.setFont(new Font(Font.SERIF, Font.BOLD, 30));
+        systemNameLabel.setHorizontalAlignment(JLabel.CENTER);
+        headerPanel.add(systemNameLabel);
+        add(headerPanel, BorderLayout.NORTH);
+    
         displayArea = new JTextArea();
         displayArea.setEditable(false);
-        displayArea.setBorder(BorderFactory.createEmptyBorder(10, 20, 0, 0));
+        displayArea.setBorder(BorderFactory.createEmptyBorder(30, 35, 0, 0));
         displayArea.setFont(new Font(Font.SERIF, Font.BOLD, 20));
         displayArea.setBackground(Color.getHSBColor(199 / 360f, 43 / 100f, 94 / 100f));
         displayArea.setOpaque(true);
         JScrollPane scrollPane = new JScrollPane(displayArea);
         add(scrollPane, BorderLayout.CENTER);
-
+    
         JPanel inputPanel = new JPanel(new GridLayout(7, 2, 0, 20));
         inputPanel.setBackground(Color.getHSBColor(57 / 360f, 62 / 100f, 99 / 100f));
-
+    
         JLabel titleLabel = new JLabel("Title:");
         titleLabel.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(10,20,0,0));
-        
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 20, 0, 0));
+    
         JLabel nameLabel = new JLabel("Name:");
         nameLabel.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        nameLabel.setBorder(BorderFactory.createEmptyBorder(0,20,0,0));
-
+        nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+    
         JLabel dateLabel = new JLabel("Date (MM-DD-YY):");
         dateLabel.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        dateLabel.setBorder(BorderFactory.createEmptyBorder(0,20,0,0));
-
+        dateLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+    
         JLabel timeLabel = new JLabel("Time (HH:MM):");
         timeLabel.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        timeLabel.setBorder(BorderFactory.createEmptyBorder(0,20,0,0));
-
+        timeLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+    
         JLabel descriptionLabel = new JLabel("Description:");
         descriptionLabel.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        descriptionLabel.setBorder(BorderFactory.createEmptyBorder(0,20,0,0));
-
+        descriptionLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+    
         JLabel locationLabel = new JLabel("Location:");
         locationLabel.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        locationLabel.setBorder(BorderFactory.createEmptyBorder(0,20,0,0));
-
+        locationLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+    
         JTextField titleField = new JTextField();
         titleField.setFont(new Font(Font.SERIF, Font.PLAIN, 20));
-        
+    
         JTextField nameField = new JTextField();
         nameField.setFont(new Font(Font.SERIF, Font.PLAIN, 20));
-
+    
         JTextField dateField = new JTextField();
         dateField.setFont(new Font(Font.SERIF, Font.PLAIN, 20));
-
+    
         JTextField timeField = new JTextField();
         timeField.setFont(new Font(Font.SERIF, Font.PLAIN, 20));
-
+    
         JTextField descriptionField = new JTextField();
         descriptionField.setFont(new Font(Font.SERIF, Font.PLAIN, 20));
-
+    
         JTextField locationField = new JTextField();
         locationField.setFont(new Font(Font.SERIF, Font.PLAIN, 20));
-
+    
         JButton addButton = new JButton("Add Appointment");
         addButton.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-
+    
         JButton saveButton = new JButton("Save to File");
         saveButton.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-
+    
         inputPanel.add(titleLabel);
         inputPanel.add(titleField);
         inputPanel.add(nameLabel);
@@ -92,15 +100,31 @@ public class AppointmentSystem extends JFrame {
         inputPanel.add(addButton);
         inputPanel.add(saveButton);
 
-        add(inputPanel, BorderLayout.SOUTH);
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setBackground(Color.getHSBColor(195 / 360f, 0.25f, 0.90f));
 
+        JButton createAppointmentButton = new JButton("Create Appointment");
+        createAppointmentButton.setFont(new Font(Font.SERIF, Font.BOLD, 20));
+        createAppointmentButton.setFocusable(false);
+        createAppointmentButton.addActionListener(e -> {
+            remove(bottomPanel);
+            add(inputPanel, BorderLayout.SOUTH);
+            revalidate();
+            repaint();
+        });
+    
+
+        bottomPanel.add(createAppointmentButton);
+        add(bottomPanel, BorderLayout.SOUTH);
+    
         addButton.addActionListener(e -> handleAddAppointment(titleField, nameField, dateField, timeField, descriptionField, locationField));
         saveButton.addActionListener(e -> appointmentManager.saveAppointments());
-
+    
         displayAppointments();
-
+    
         setVisible(true);
     }
+    
 
     private void handleAddAppointment(JTextField titleField, JTextField nameField, JTextField dateField, JTextField timeField, JTextField descriptionField, JTextField locationField) {
         String title = titleField.getText().trim();
@@ -128,9 +152,16 @@ public class AppointmentSystem extends JFrame {
 
     private void displayAppointments() {
         displayArea.setText("");
-        for (int i = 0; i < appointmentManager.getAppointments().size(); i++) {
-            Appointment appt = appointmentManager.getAppointments().get(i);
-            displayArea.append("Appointment " + (i+1) + "\n" + appt.toString() + "\n");
+    
+        if (appointmentManager.getAppointments().isEmpty()) {
+            displayArea.append("No appointments yet.\n");
+        } 
+        
+        else {
+            for (int i = 0; i < appointmentManager.getAppointments().size(); i++) {
+                Appointment appt = appointmentManager.getAppointments().get(i);
+                displayArea.append("Appointment " + (i + 1) + "\n" + appt.toString() + "\n");
+            }
         }
     }
 
@@ -207,7 +238,7 @@ public class AppointmentSystem extends JFrame {
         introPanel.add(passLogin, gbc);
 
         gbc.gridy = 3;
-        introPanel.add(loginButton, gbc); 
+        introPanel.add(loginButton, gbc);
 
         add(introPanel, BorderLayout.NORTH);
 
@@ -220,12 +251,13 @@ public class AppointmentSystem extends JFrame {
             String username = userLogin.getText();
             String password = new String(passLogin.getPassword());
     
-            if ("joshuamanila".equals(username) && "joshuamanila".equals(password)) {
+            if ("jandib".equals(username) && "jandib".equals(password)) {
+                JOptionPane.showMessageDialog(AppointmentSystem.this, "Login successful!", "Login Successful", JOptionPane.INFORMATION_MESSAGE);
                 getContentPane().removeAll();
-                appointmentSystem();
+                setupAppointmentSystem();
                 revalidate();
                 repaint();
-            } 
+            }   
             
             else {
                 JOptionPane.showMessageDialog(AppointmentSystem.this, "Invalid username or password!", "Login Error", JOptionPane.ERROR_MESSAGE);
