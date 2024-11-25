@@ -1,15 +1,27 @@
- import javax.swing.*;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
 
 public class AppointmentSystem extends JFrame {
     private AppointmentManager appointmentManager;
     private JTextArea displayArea;
     JTextField userLogin;
     JPasswordField passLogin;
+    private JPanel inputPanel;
+    private JPanel bottomPanel;
+
+    private HashMap<String, String> accounts = new HashMap<>();
+    private final String accountsFile = "accounts.txt";
 
     public void setupAppointmentSystem() {
-        appointmentManager = new AppointmentManager();
+        appointmentManager = new AppointmentManager(userLogin.getText().trim());
     
         setTitle("Appointment System");
         setSize(800, 800);
@@ -34,7 +46,7 @@ public class AppointmentSystem extends JFrame {
         JScrollPane scrollPane = new JScrollPane(displayArea);
         add(scrollPane, BorderLayout.CENTER);
     
-        JPanel inputPanel = new JPanel(new GridLayout(7, 2, 0, 20));
+        inputPanel = new JPanel(new GridLayout(8, 2, 0, 20));
         inputPanel.setBackground(Color.getHSBColor(57 / 360f, 62 / 100f, 99 / 100f));
     
         JLabel titleLabel = new JLabel("Title:");
@@ -81,9 +93,21 @@ public class AppointmentSystem extends JFrame {
     
         JButton addButton = new JButton("Add Appointment");
         addButton.setFont(new Font(Font.SERIF, Font.BOLD, 20));
+        addButton.setFocusable(false);
     
         JButton saveButton = new JButton("Save to File");
         saveButton.setFont(new Font(Font.SERIF, Font.BOLD, 20));
+        saveButton.setFocusable(false);
+
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.setFont(new Font(Font.SERIF, Font.BOLD, 20));
+        logoutButton.setFocusable(false);
+        logoutButton.addActionListener(new LogoutButtonClickListener());
+
+        JButton doneButton = new JButton("Done");
+        doneButton.setFont(new Font(Font.SERIF, Font.BOLD, 20));
+        doneButton.setFocusable(false);
+        doneButton.addActionListener(new DoneButtonClickListener());
     
         inputPanel.add(titleLabel);
         inputPanel.add(titleField);
@@ -99,8 +123,10 @@ public class AppointmentSystem extends JFrame {
         inputPanel.add(locationField);
         inputPanel.add(addButton);
         inputPanel.add(saveButton);
+        inputPanel.add(logoutButton);
+        inputPanel.add(doneButton);
 
-        JPanel bottomPanel = new JPanel();
+        bottomPanel = new JPanel();
         bottomPanel.setBackground(Color.getHSBColor(195 / 360f, 0.25f, 0.90f));
 
         JButton createAppointmentButton = new JButton("Create Appointment");
@@ -166,6 +192,9 @@ public class AppointmentSystem extends JFrame {
     }
 
     public void introAppointment() {
+
+        loadAccounts();
+
         setTitle("Welcome to JP Appointment Management System!");
         setSize(800,800);
         setLayout(new BorderLayout());
@@ -201,7 +230,16 @@ public class AppointmentSystem extends JFrame {
         loginButton.setFont(new Font(Font.SERIF, Font.BOLD, 20));
         loginButton.setFocusable(false);
 
+        JLabel createAccountLabel = new JLabel("Don't have an account?");
+        createAccountLabel.setFont(new Font(Font.SERIF, Font.PLAIN, 20));
+
+
+        JButton createAccountButton = new JButton("Create Account");
+        createAccountButton.setFocusable(false);
+        createAccountButton.setFont(new Font(Font.SERIF, Font.BOLD, 20));
+
         LoginButtonClickListener loginListener = new LoginButtonClickListener();
+        createAccountButton.addActionListener(new CreateAccountButtonListener());
         
         loginButton.addActionListener(loginListener);
 
@@ -238,7 +276,20 @@ public class AppointmentSystem extends JFrame {
         introPanel.add(passLogin, gbc);
 
         gbc.gridy = 3;
+        gbc.gridx = 0;
+        gbc.gridwidth = 2; 
+        gbc.insets = new Insets(20, 0, 0, 0); 
         introPanel.add(loginButton, gbc);
+
+        gbc.gridy = 4;
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(20, 0, 0, 0);
+        introPanel.add(createAccountLabel, gbc);
+
+        gbc.gridy = 5; 
+        gbc.insets = new Insets(20, 0, 0, 0); 
+        introPanel.add(createAccountButton, gbc);
 
         add(introPanel, BorderLayout.NORTH);
 
@@ -246,24 +297,86 @@ public class AppointmentSystem extends JFrame {
 
     }
     
+    private void loadAccounts() {
+        File file = new File(accountsFile);
+        if (!file.exists()) return;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(":");
+                if (parts.length == 2) {
+                    accounts.put(parts[0], parts[1]);
+                }
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error loading accounts file!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void saveAccount(String username, String password) {
+        accounts.put(username, password);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(accountsFile, true))) {
+            writer.write(username + ":" + password);
+            writer.newLine();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error saving account to file!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private class LoginButtonClickListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             String username = userLogin.getText();
             String password = new String(passLogin.getPassword());
     
-            if ("jandib".equals(username) && "jandib".equals(password)) {
+            if (accounts.containsKey(username) && accounts.get(username).equals(password)) {
                 JOptionPane.showMessageDialog(AppointmentSystem.this, "Login successful!", "Login Successful", JOptionPane.INFORMATION_MESSAGE);
                 getContentPane().removeAll();
+                appointmentManager = new AppointmentManager(username);
                 setupAppointmentSystem();
                 revalidate();
                 repaint();
-            }   
-            
-            else {
+            } else {
                 JOptionPane.showMessageDialog(AppointmentSystem.this, "Invalid username or password!", "Login Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
+
+    private class CreateAccountButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String username = userLogin.getText().trim();
+            String password = new String(passLogin.getPassword()).trim();
+
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(AppointmentSystem.this, "Username and password cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+            } else if (accounts.containsKey(username)) {
+                JOptionPane.showMessageDialog(AppointmentSystem.this, "Account already exists!", "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                saveAccount(username, password);
+                JOptionPane.showMessageDialog(AppointmentSystem.this, "Account created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+    }
+
+    private class LogoutButtonClickListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            JOptionPane.showMessageDialog(AppointmentSystem.this, "Logout successful!", "Login Successful", JOptionPane.INFORMATION_MESSAGE);
+                getContentPane().removeAll();
+                introAppointment();
+                revalidate();
+                repaint();
+        }
+    }
+
+    private class DoneButtonClickListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            getContentPane().remove(inputPanel);
+            add(bottomPanel, BorderLayout.SOUTH);
+            revalidate();
+            repaint();
+        }
+    }
+
 
     public static void main(String[] args) {
             AppointmentSystem app = new AppointmentSystem();
