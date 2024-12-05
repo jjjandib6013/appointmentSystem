@@ -1,58 +1,63 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.HashMap;
+import javax.swing.*;               // Importing Swing classes for GUI components
+import java.awt.*;                  // Importing AWT classes for layout management and event handling
+import java.awt.event.*;            // Importing classes for event listeners
+import java.io.*;                   // Importing IO classes for reading and writing files
+import java.util.HashMap;           // Importing HashMap for storing accounts
 
+// OOP: The AppointmentSystem class is extending JFrame, meaning it is a GUI component.
 public class AppointmentSystem extends JFrame {
-    private AppointmentManager appointmentManager;
-    private JTextArea displayArea;
-    JTextField userLogin;
-    JPasswordField passLogin;
-    private JPanel inputPanel;
-    private JPanel bottomPanel;
+    
+    private AppointmentManager appointmentManager; // OOP: AppointmentManager is used to handle appointments.
+    private JTextArea displayArea;  // GUI: JTextArea to display appointments.
+    JTextField userLogin;          // GUI: JTextField for user to input username.
+    JPasswordField passLogin;      // GUI: JPasswordField for user to input password.
+    private JPanel inputPanel;     // GUI: JPanel for layout of input fields.
+    private JPanel bottomPanel;    // GUI: JPanel for the bottom layout with buttons.
 
-    private HashMap<String, String> accounts = new HashMap<>();
-    private final String accountsFile = "accounts.txt";
+    private HashMap<String, String> accounts = new HashMap<>(); // OOP: HashMap to store account username and password pairs.
+    private final String accountsFile = "accounts.txt"; // IO: File where account data is stored.
 
+    // This method sets up the appointment system GUI.
     public void setupAppointmentSystem() {
-        appointmentManager = new AppointmentManager(userLogin.getText().trim());
-    
-        setTitle("Appointment System");
-        setSize(800, 800);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-        setLocationRelativeTo(null);
+        appointmentManager = new AppointmentManager(userLogin.getText().trim()); // OOP: Create an AppointmentManager instance for user.
+        
+        setTitle("Appointment System"); // GUI: Set window title.
+        setSize(800, 800); // GUI: Set window size.
+        setDefaultCloseOperation(EXIT_ON_CLOSE); // GUI: Close application on window close.
+        setLayout(new BorderLayout()); // GUI: Set layout manager to BorderLayout.
+        setLocationRelativeTo(null); // GUI: Center the window on the screen.
 
+        // Creating a panel for the header (system title).
         JPanel headerPanel = new JPanel();
-        headerPanel.setBackground(Color.getHSBColor(195 / 360f, 25 / 100f, 90 / 100f));
-        JLabel systemNameLabel = new JLabel("JP Appointment Management System");
-        systemNameLabel.setFont(new Font(Font.SERIF, Font.BOLD, 30));
-        systemNameLabel.setHorizontalAlignment(JLabel.CENTER);
-        headerPanel.add(systemNameLabel);
-        add(headerPanel, BorderLayout.NORTH);
-    
+        headerPanel.setBackground(Color.getHSBColor(195 / 360f, 25 / 100f, 90 / 100f)); // Set header background color.
+        JLabel systemNameLabel = new JLabel("JP Appointment Management System"); // GUI: Create label with system name.
+        systemNameLabel.setFont(new Font(Font.SERIF, Font.BOLD, 30)); // GUI: Set label font.
+        systemNameLabel.setHorizontalAlignment(JLabel.CENTER); // GUI: Center the text.
+        headerPanel.add(systemNameLabel); // GUI: Add label to header panel.
+        add(headerPanel, BorderLayout.NORTH); // GUI: Add header panel to the top of the window.
+
+        // Create and configure the text area to display appointments.
         displayArea = new JTextArea();
-        displayArea.setEditable(false);
-        displayArea.setBorder(BorderFactory.createEmptyBorder(30, 35, 0, 0));
-        displayArea.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        displayArea.setBackground(Color.getHSBColor(199 / 360f, 43 / 100f, 94 / 100f));
-        displayArea.setOpaque(true);
-        JScrollPane scrollPane = new JScrollPane(displayArea);
-        add(scrollPane, BorderLayout.CENTER);
-    
-        inputPanel = new JPanel(new GridLayout(8, 2, 0, 20));
-        inputPanel.setBackground(Color.getHSBColor(57 / 360f, 62 / 100f, 99 / 100f));
-    
-        JLabel titleLabel = new JLabel("Title:");
-        titleLabel.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 20, 0, 0));
-    
+        displayArea.setEditable(false); // GUI: Set text area as non-editable.
+        displayArea.setBorder(BorderFactory.createEmptyBorder(30, 35, 0, 0)); // GUI: Add padding around text.
+        displayArea.setFont(new Font(Font.SERIF, Font.BOLD, 20)); // GUI: Set font for the text area.
+        displayArea.setBackground(Color.getHSBColor(199 / 360f, 43 / 100f, 94 / 100f)); // GUI: Set background color.
+        displayArea.setOpaque(true); // GUI: Ensure the background color is opaque.
+        JScrollPane scrollPane = new JScrollPane(displayArea); // GUI: Add scroll functionality to the display area.
+        add(scrollPane, BorderLayout.CENTER); // GUI: Add the scrollable display area to the center.
+
+        // Create the input panel for appointment details.
+        inputPanel = new JPanel(new GridLayout(8, 2, 20, 20)); // GUI: Grid layout for the input fields.
+        inputPanel.setBackground(Color.getHSBColor(57 / 360f, 62 / 100f, 99 / 100f)); // Set input panel background color.
+
+        // Create labels and text fields for appointment details (Title, Name, Date, etc.)
+        JLabel titleLabel = new JLabel("Title:"); // GUI: Label for title field.
+        titleLabel.setFont(new Font(Font.SERIF, Font.BOLD, 20)); // Set label font.
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 20, 0, 0)); // Add padding.
+
+        // Similar code for other labels (Name, Date, etc.)
+        // Set up text fields for each label.
+        
         JLabel nameLabel = new JLabel("Name:");
         nameLabel.setFont(new Font(Font.SERIF, Font.BOLD, 20));
         nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
@@ -72,10 +77,11 @@ public class AppointmentSystem extends JFrame {
         JLabel locationLabel = new JLabel("Location:");
         locationLabel.setFont(new Font(Font.SERIF, Font.BOLD, 20));
         locationLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
-    
-        JTextField titleField = new JTextField();
-        titleField.setFont(new Font(Font.SERIF, Font.PLAIN, 20));
-    
+
+        // OOP: Encapsulation of text fields for user inputs: titleField, nameField, etc.
+        JTextField titleField = new JTextField(); // Text field for appointment title.
+        titleField.setFont(new Font(Font.SERIF, Font.PLAIN, 20)); // Set font for input fields.
+        
         JTextField nameField = new JTextField();
         nameField.setFont(new Font(Font.SERIF, Font.PLAIN, 20));
     
@@ -90,25 +96,30 @@ public class AppointmentSystem extends JFrame {
     
         JTextField locationField = new JTextField();
         locationField.setFont(new Font(Font.SERIF, Font.PLAIN, 20));
-    
-        JButton addButton = new JButton("Add Appointment");
-        addButton.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        addButton.setFocusable(false);
-    
+
+        // Create buttons for adding, saving, logging out, etc.
+        JButton addButton = new JButton("Add Appointment"); // GUI: Button to add an appointment.
+        addButton.setFont(new Font(Font.SERIF, Font.BOLD, 20)); // Set font for the button.
+        addButton.setFocusable(false); // Disable button focus outline.
+
+        // Create a Save button to save appointments to file.
         JButton saveButton = new JButton("Save to File");
-        saveButton.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        saveButton.setFocusable(false);
+        saveButton.setFont(new Font(Font.SERIF, Font.BOLD, 20)); // Set button font.
+        saveButton.setFocusable(false); // Disable button focus outline.
 
+        // Add listener for logout button (action handler).
         JButton logoutButton = new JButton("Logout");
-        logoutButton.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        logoutButton.setFocusable(false);
-        logoutButton.addActionListener(new LogoutButtonClickListener());
+        logoutButton.setFont(new Font(Font.SERIF, Font.BOLD, 20)); // Set button font.
+        logoutButton.setFocusable(false); // Disable button focus outline.
+        logoutButton.addActionListener(new LogoutButtonClickListener()); // OOP: Registering an event listener for logout.
 
+        // Done button to return to bottom panel view.
         JButton doneButton = new JButton("Done");
         doneButton.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        doneButton.setFocusable(false);
-        doneButton.addActionListener(new DoneButtonClickListener());
-    
+        doneButton.setFocusable(false); // Disable button focus outline.
+        doneButton.addActionListener(new DoneButtonClickListener()); // OOP: Action listener for done button.
+
+        // Add all components to inputPanel.
         inputPanel.add(titleLabel);
         inputPanel.add(titleField);
         inputPanel.add(nameLabel);
@@ -126,34 +137,36 @@ public class AppointmentSystem extends JFrame {
         inputPanel.add(logoutButton);
         inputPanel.add(doneButton);
 
+        // Bottom panel with button to create an appointment.
         bottomPanel = new JPanel();
-        bottomPanel.setBackground(Color.getHSBColor(195 / 360f, 0.25f, 0.90f));
+        bottomPanel.setBackground(Color.getHSBColor(195 / 360f, 0.25f, 0.90f)); // Set background color.
 
+        // Button to trigger the creation of an appointment form.
         JButton createAppointmentButton = new JButton("Create Appointment");
-        createAppointmentButton.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        createAppointmentButton.setFocusable(false);
-        createAppointmentButton.addActionListener(e -> {
-            remove(bottomPanel);
-            add(inputPanel, BorderLayout.SOUTH);
-            revalidate();
-            repaint();
+        createAppointmentButton.setFont(new Font(Font.SERIF, Font.BOLD, 20)); // Set button font.
+        createAppointmentButton.setFocusable(false); // Disable button focus outline.
+        createAppointmentButton.addActionListener(e -> { // OOP: Lambda expression for event handling.
+            remove(bottomPanel); // GUI: Remove bottom panel.
+            add(inputPanel, BorderLayout.SOUTH); // GUI: Add input panel.
+            revalidate(); // GUI: Revalidate the layout.
+            repaint(); // GUI: Repaint the window.
         });
-    
 
-        bottomPanel.add(createAppointmentButton);
-        add(bottomPanel, BorderLayout.SOUTH);
-    
+        bottomPanel.add(createAppointmentButton); // Add button to bottom panel.
+        add(bottomPanel, BorderLayout.SOUTH); // Add bottom panel to the window.
+
+        // Event handling: Adding action listeners to buttons.
         addButton.addActionListener(e -> handleAddAppointment(titleField, nameField, dateField, timeField, descriptionField, locationField));
-        saveButton.addActionListener(e -> appointmentManager.saveAppointments());
-    
-        displayAppointments();
-    
-        setVisible(true);
-    }
-    
+        saveButton.addActionListener(e -> appointmentManager.saveAppointments()); // OOP: Call method to save appointments.
 
+        displayAppointments(); // Display the list of appointments.
+    
+        setVisible(true); // Make the frame visible.
+    }
+
+    // Method to handle adding an appointment (including validation).
     private void handleAddAppointment(JTextField titleField, JTextField nameField, JTextField dateField, JTextField timeField, JTextField descriptionField, JTextField locationField) {
-        String title = titleField.getText().trim();
+    	String title = titleField.getText().trim();
         String name = nameField.getText().trim();
         String date = dateField.getText().trim();
         String time = timeField.getText().trim();
@@ -165,32 +178,69 @@ public class AppointmentSystem extends JFrame {
             return;
         }
 
+        try {
+            if (!date.matches("\\d{2}-\\d{2}-\\d{2}")) {
+                throw new IllegalArgumentException("Date must be in the format MM-DD-YY (e.g., 12-25-24).");
+            }
+
+            String[] dateParts = date.split("-");
+            int month = Integer.parseInt(dateParts[0]);
+            int day = Integer.parseInt(dateParts[1]);
+            int year = Integer.parseInt(dateParts[2]);
+
+            if (month < 1 || month > 12 || day < 1 || day > 31) {
+                throw new IllegalArgumentException("Month must be between 1-12 and day between 1-31.");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Invalid Date", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            if (!time.matches("\\d{2}:\\d{2}")) {
+                throw new IllegalArgumentException("Time must be in the format HH:MM (e.g., 08:30).");
+            }
+
+            String[] timeParts = time.split(":");
+            int hours = Integer.parseInt(timeParts[0]);
+            int minutes = Integer.parseInt(timeParts[1]);
+
+            if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+                throw new IllegalArgumentException("Hours must be between 00-23 and minutes between 00-59.");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Invalid Time", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         Appointment appointment = new Appointment(title, name, date, time, description, location);
         appointmentManager.addAppointment(appointment);
         displayAppointments();
-        titleField.setText("");
-        nameField.setText("");
-        dateField.setText("");
-        timeField.setText("");
-        descriptionField.setText("");
-        locationField.setText("");
+        titleField.setText(" ");
+        nameField.setText(" ");
+        dateField.setText(" ");
+        timeField.setText(" ");
+        descriptionField.setText(" ");
+        locationField.setText(" ");
     }
 
+    // Method to display all appointments in the display area.
     private void displayAppointments() {
-        displayArea.setText("");
+        displayArea.setText(""); // Clear previous appointments.
     
+        // Check if there are any appointments to display.
         if (appointmentManager.getAppointments().isEmpty()) {
             displayArea.append("No appointments yet.\n");
-        } 
-        
-        else {
+        } else {
+            // Iterate through all appointments and display them.
             for (int i = 0; i < appointmentManager.getAppointments().size(); i++) {
-                Appointment appt = appointmentManager.getAppointments().get(i);
+                Appointment appt = appointmentManager.getAppointments().get(i); // OOP: Accessing Appointment objects.
                 displayArea.append("Appointment " + (i + 1) + "\n" + appt.toString() + "\n");
             }
         }
     }
 
+    // Method to display the login screen.
     public void introAppointment() {
 
         loadAccounts();
@@ -296,17 +346,19 @@ public class AppointmentSystem extends JFrame {
         setVisible(true);
 
     }
-    
-    private void loadAccounts() {
-        File file = new File(accountsFile);
-        if (!file.exists()) return;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+    // Method to load accounts from file into the HashMap.
+    private void loadAccounts() {
+        File file = new File(accountsFile); // IO: File object to read from "accounts.txt".
+        if (!file.exists()) return; // Return if file does not exist.
+
+        // Read from the file and store accounts in HashMap.
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) { // IO: Reading file with BufferedReader.
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(":");
+                String[] parts = line.split(":"); // Split the line into username and password.
                 if (parts.length == 2) {
-                    accounts.put(parts[0], parts[1]);
+                    accounts.put(parts[0], parts[1]); // OOP: Add username and password to HashMap.
                 }
             }
         } catch (IOException e) {
@@ -314,26 +366,28 @@ public class AppointmentSystem extends JFrame {
         }
     }
 
+    // Method to save an account to the file.
     private void saveAccount(String username, String password) {
-        accounts.put(username, password);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(accountsFile, true))) {
-            writer.write(username + ":" + password);
-            writer.newLine();
+        accounts.put(username, password); // Add account to HashMap.
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(accountsFile, true))) { // IO: Writing to file.
+            writer.write(username + ":" + password); // Write username and password.
+            writer.newLine(); // Add new line.
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Error saving account to file!", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    // Listener class for login button.
     private class LoginButtonClickListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            String username = userLogin.getText();
-            String password = new String(passLogin.getPassword());
+            String username = userLogin.getText(); // Get the username input.
+            String password = new String(passLogin.getPassword()); // Get the password input.
     
-            if (accounts.containsKey(username) && accounts.get(username).equals(password)) {
+            if (accounts.containsKey(username) && accounts.get(username).equals(password)) { // OOP: Check username and password in HashMap.
                 JOptionPane.showMessageDialog(AppointmentSystem.this, "Login successful!", "Login Successful", JOptionPane.INFORMATION_MESSAGE);
                 getContentPane().removeAll();
-                appointmentManager = new AppointmentManager(username);
-                setupAppointmentSystem();
+                appointmentManager = new AppointmentManager(username); // OOP: Initialize AppointmentManager for user.
+                setupAppointmentSystem(); // Call method to set up appointment system GUI.
                 revalidate();
                 repaint();
             } else {
@@ -342,9 +396,10 @@ public class AppointmentSystem extends JFrame {
         }
     }
 
+    // Listener class for creating a new account.
     private class CreateAccountButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            String username = userLogin.getText().trim();
+        	String username = userLogin.getText().trim();
             String password = new String(passLogin.getPassword()).trim();
 
             if (username.isEmpty() || password.isEmpty()) {
@@ -358,32 +413,30 @@ public class AppointmentSystem extends JFrame {
         }
     }
 
+    // Listener class for logging out.
     private class LogoutButtonClickListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             JOptionPane.showMessageDialog(AppointmentSystem.this, "Logout successful!", "Login Successful", JOptionPane.INFORMATION_MESSAGE);
-                getContentPane().removeAll();
-                introAppointment();
-                revalidate();
-                repaint();
-        }
-    }
-
-    private class DoneButtonClickListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            getContentPane().remove(inputPanel);
-            add(bottomPanel, BorderLayout.SOUTH);
+            getContentPane().removeAll();
+            introAppointment(); // Show intro screen again.
             revalidate();
             repaint();
         }
     }
 
-
-    public static void main(String[] args) {
-            AppointmentSystem app = new AppointmentSystem();
-            app.introAppointment();
+    // Listener class for the done button (return to bottom panel).
+    private class DoneButtonClickListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            getContentPane().remove(inputPanel); // Remove input panel.
+            add(bottomPanel, BorderLayout.SOUTH); // Add bottom panel back.
+            revalidate();
+            repaint();
+        }
     }
 
-    
+    // Main method to run the application.
+    public static void main(String[] args) {
+            AppointmentSystem app = new AppointmentSystem();
+            app.introAppointment(); // OOP: Create an AppointmentSystem
+    }
 }
-
-
