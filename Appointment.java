@@ -1,6 +1,5 @@
 // The Appointment class implements the AppointmentType interface
 public class Appointment implements AppointmentType {
-
     // Instance variables to store the details of an appointment (Encapsulation)
     private String title;        // Stores the title of the appointment
     private String name;         // Stores the name associated with the appointment
