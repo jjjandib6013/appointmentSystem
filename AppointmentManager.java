@@ -1,4 +1,4 @@
-// Import necessary classes for file handling and displaying messages
+// Import necessary classes for file handling and displaying message
 import java.io.*;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
